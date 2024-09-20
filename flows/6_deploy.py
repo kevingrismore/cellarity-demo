@@ -2,11 +2,12 @@ from prefect import flow, task, get_run_logger as _logger
 from prefect.docker import DockerImage
 from prefect.runtime import task_run
 
-@flow
+@flow(retries=1, retry_delay_seconds=30)
 def my_pipeline():
     data = extract()
     transformed_data = transform(data)
     load(transformed_data)
+    raise Exception("Pipeline failed")
 
 @task
 def extract():
@@ -28,11 +29,10 @@ def load(transformed_data):
                 raise Exception("Failed to load data")
 
 if __name__ == "__main__":
-    my_pipeline.deploy(
-        name="pipeline-deployment",
-        image=DockerImage(
-            name="kevingrismoreprefect/cellarity-pipeline:2",
-            platform="linux/amd64",
-        ),
-        work_pool_name="ecs-asg",
+    flow.from_source(
+        source="https://github.com/kevingrismore/cellarity-demo.git",
+        entrypoint="flows/6_deploy.py:my_pipeline",
+    ).deploy(
+        name="long-retry",
+        work_pool_name="local",
     )
