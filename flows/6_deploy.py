@@ -1,12 +1,14 @@
 from prefect import flow, task, get_run_logger as _logger
 from prefect.docker import DockerImage
 from prefect.runtime import task_run
+import time
 
 @flow(retries=1, retry_delay_seconds=30)
 def my_pipeline():
     data = extract()
     transformed_data = transform(data)
     load(transformed_data)
+    time.sleep(20)
     raise Exception("Pipeline failed")
 
 @task
