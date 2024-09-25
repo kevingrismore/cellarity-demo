@@ -10,7 +10,6 @@ def a_flow():
 
 
 if __name__ == "__main__":
-    if __name__ == "__main__":
     flow.from_source(
         source="https://github.com/kevingrismore/cellarity-demo.git",
         entrypoint="flows/8_get_work_pool.py:a_flow",
